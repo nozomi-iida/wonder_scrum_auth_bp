@@ -12,11 +12,9 @@ module Mutations
       ).try(:authenticate, args[:password])
 
       if account
-        token = account.jwt
-        context[:session][:token] = token
         {
           account: account,
-          token: token
+          token:  account.jwt
         }
       end
     end

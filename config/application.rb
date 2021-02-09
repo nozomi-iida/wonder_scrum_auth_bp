@@ -29,6 +29,12 @@ module WonderScrum
     # 一旦Sidekiq無し
     # config.active_job.queue_adapter = :sidekiq
 
+    # rails_admin
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Flash
+    config.middleware.use Rack::MethodOverride
+    config.middleware.use ActionDispatch::Session::CookieStore, { key: '_wonder_scrum_session' }
+
     # require
     config.autoload_paths << 'lib'
 

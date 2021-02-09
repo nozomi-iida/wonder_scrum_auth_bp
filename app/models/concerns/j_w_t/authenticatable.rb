@@ -17,7 +17,7 @@ module JWT
     included do
       # JWT失効させる
       def invalidate_jwt!(token)
-        payload, _header = JWT::Helper.decode(token)
+        payload, _header = JWT::Helper.decod (token)
         _type, sub = GraphQL::Schema::UniqueWithinType.decode(payload['sub'], separator: ':')
         fail JWT::InvalidSubError if sub != id
 

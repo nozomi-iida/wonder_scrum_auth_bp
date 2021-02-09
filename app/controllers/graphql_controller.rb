@@ -12,7 +12,6 @@ class GraphqlController < ApplicationController
     query = params[:query]
     operation_name = params[:operationName]
     context = {
-      session: session,
       current_account: current_account
     }
     result = WonderScrumSchema.execute(query, variables: variables, context: context, operation_name: operation_name)

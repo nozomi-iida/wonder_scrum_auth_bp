@@ -5,30 +5,42 @@ class WonderScrumSchema < GraphQL::Schema
   mutation(Types::MutationType)
   query(Types::QueryType)
 
-  # Union and Interface Resolution
-  def self.resolve_type(_abstract_type, _obj, _ctx)
-    # TODO: Implement this function
-    # to return the correct object type for `obj`
-    fail(GraphQL::RequiredImplementationMissingError)
+  use GraphQL::Execution::Interpreter
+  use GraphQL::Execution::Errors
+  use GraphQL::Analysis::AST
+  use GraphQL::Pagination::Connections
+  use GraphQL::Batch
+  use BatchLoader::GraphQL
+
+  def self.unauthorized_object(error)
+    fail GraphQL::ExecutionError, "An object of type #{error.type.graphql_name} was hidden due to permissions"
   end
 
-  # Relay-style Object Identification:
-
-  # Return a string UUID for `object`
-  def self.id_from_object(object, type_definition, query_ctx)
-    # Here's a simple implementation which:
-    # - joins the type name & object.id
-    # - encodes it with base64:
-    # GraphQL::Schema::UniqueWithinType.encode(type_definition.name, object.id)
+  def self.unauthorized_field(error)
+    fail GraphQL::ExecutionError,
+         "The field #{error.field.graphql_name} on an object of type #{error.type.graphql_name} was hidden due to permissions" # rubocop:disable Layout/LineLength
   end
 
-  # Given a string UUID, find the object
-  def self.object_from_id(id, query_ctx)
-    # For example, to decode the UUIDs generated above:
-    # type_name, item_id = GraphQL::Schema::UniqueWithinType.decode(id)
-    #
-    # Then, based on `type_name` and `id`
-    # find an object in your application
-    # ...
+  rescue_from StandardError do |e, _obj, args, ctx, _field|
+    fail e
+  end
+
+  class << self
+    def resolve_type(_type, obj, _ctx)
+      Types.const_get("#{obj.class}Type")
+    end
+
+    def object_from_id(node_id, _ctx)
+      type_name, object_id = self::UniqueWithinType.decode(node_id, separator: ':')
+      Object.const_get(type_name).find(object_id)
+    end
+
+    def id_from_object(object, _type, _ctx)
+      self::UniqueWithinType.encode(object.class.name, object.id, separator: ':')
+    end
+
+    def type_error(e, ctx)
+      super
+    end
   end
 end

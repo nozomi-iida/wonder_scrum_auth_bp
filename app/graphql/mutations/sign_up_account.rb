@@ -11,11 +11,9 @@ module Mutations
 
     def resolve(args)
       account = Account.create!(args)
-      token = account.jwt
-      context[:session][:token] = token
       {
         account: account,
-        token: token
+        token: account.jwt
       }
     end
   end
