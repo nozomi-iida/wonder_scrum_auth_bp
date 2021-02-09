@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative 'boot'
 
 require 'rails'
@@ -14,29 +15,37 @@ require 'action_text/engine'
 require 'action_view/railtie'
 require 'action_cable/engine'
 require 'sprockets/railtie'
-# require "rails/test_unit/railtie"
+require 'rails/test_unit/railtie'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module App
+module WonderScrum
   # Application
   class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 6.1
+    config.load_defaults 6.0
+    config.api_only = true
+    # 一旦Sidekiq無し
+    # config.active_job.queue_adapter = :sidekiq
 
-    # Configuration for the application, engines, and railties goes here.
-    #
-    # These settings can be overridden in specific environments using the files
-    # in config/environments, which are processed later.
+    # require
+    config.autoload_paths << 'lib'
+
     # タイムゾーン(ruby側は東京にして, DBはUTCに)
     config.time_zone = 'Tokyo'
-    # config.eager_load_paths << Rails.root.join("extras")
 
-    # Only loads a smaller set of middleware suitable for API only apps.
-    # Middleware like session, flash, cookies can be added back manually.
-    # Skip views, helpers and assets when generating a new resource.
-    config.api_only = true
+    # LBのIPを特定することが不可能なので無効化
+    config.hosts.clear
+
+    config.generators do |g|
+      g.orm :active_record, primary_key_type: :uuid
+    end
+
+    app_host = Rails.env.test? ? 'localhost:3000' : ENV.fetch('APP_HOST')
+    Rails.application.routes.default_url_options = {
+      host: app_host,
+      protocol: app_host.match?(/localhost/) ? 'http' : 'https'
+    }
   end
 end

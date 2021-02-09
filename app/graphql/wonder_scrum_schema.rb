@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# AppSchema
-class AppSchema < GraphQL::Schema
+# WonderScrumSchema
+class WonderScrumSchema < GraphQL::Schema
   mutation(Types::MutationType)
   query(Types::QueryType)
 

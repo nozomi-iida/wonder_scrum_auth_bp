@@ -81,7 +81,7 @@ rails_g_migration: buf_migrate_label
 	@$(RAILS_C) g migration $(MIGRATE_LABEL)
 
 rails_g_object: buf_migrate_label
-	@$(RAILS_C) g graphql:mutation $(MIGRATE_LABEL)
+	@$(RAILS_C) g graphql:object $(MIGRATE_LABEL)
 
 rails_g_mutation: buf_migrate_label
 	@$(RAILS_C) g graphql:mutation $(MIGRATE_LABEL)
