@@ -1,5 +1,5 @@
 module Mutations
-  class SignInAccount < BaseMutation
+  class SignInAccount < PublicMutation
     field :account, Types::AccountType, null: false
     field :token, String, null: false
 

@@ -2,6 +2,7 @@
 
 # GraphqlController
 class GraphqlController < ApplicationController
+  before_action :load_current_account
 
   def execute
     variables = prepare_variables(params[:variables])
@@ -19,6 +20,12 @@ class GraphqlController < ApplicationController
   end
 
   private
+
+  def load_current_account
+    authenticate_account!
+  rescue => _e
+    @current_account = nil
+  end
 
   # Handle variables in form data, JSON body, or a blank value
   def prepare_variables(variables_param)

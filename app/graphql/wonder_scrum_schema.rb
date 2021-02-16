@@ -12,20 +12,20 @@ class WonderScrumSchema < GraphQL::Schema
   use GraphQL::Batch
   use BatchLoader::GraphQL
 
-  def self.unauthorized_object(error)
-    fail GraphQL::ExecutionError, "An object of type #{error.type.graphql_name} was hidden due to permissions"
-  end
-
-  def self.unauthorized_field(error)
-    fail GraphQL::ExecutionError,
-         "The field #{error.field.graphql_name} on an object of type #{error.type.graphql_name} was hidden due to permissions" # rubocop:disable Layout/LineLength
-  end
-
-  rescue_from StandardError do |e, _obj, args, ctx, _field|
-    fail e
-  end
+  include ExceptionHandler
 
   class << self
+    # Spec override
+    def unauthorized_object(error)
+      fail GraphQL::ExecutionError, "An object of type #{error.type.graphql_name} was hidden due to permissions"
+    end
+
+    # Spec override
+    def unauthorized_field(error)
+      fail GraphQL::ExecutionError,
+           "The field #{error.field.graphql_name} on an object of type #{error.type.graphql_name} was hidden due to permissions" # rubocop:disable Layout/LineLength
+    end
+
     def resolve_type(_type, obj, _ctx)
       Types.const_get("#{obj.class}Type")
     end

@@ -17,7 +17,7 @@ module JWT
     included do
       # JWT失効させる
       def invalidate_jwt!(token)
-        payload, _header = JWT::Helper.decod (token)
+        payload, _header = JWT::Helper.decode(token)
         _type, sub = GraphQL::Schema::UniqueWithinType.decode(payload['sub'], separator: ':')
         fail JWT::InvalidSubError if sub != id
 
@@ -44,20 +44,25 @@ module JWT
     class_methods do
       # 認証
       def authenticate!(token)
-        payload, _header = JWT::Helper.decode(
-          token,
-          algorithm: 'HS256',
-          verify_jti: proc { |jti|
-            Jti.exists?(jti)
-          }
-        )
+        begin
+          payload, _header = JWT::Helper.decode(
+            token,
+            algorithm: 'HS256',
+            verify_jti: proc { |jti|
+              Jti.exists?(jti)
+            }
+          )
 
-        _type, sub = GraphQL::Schema::UniqueWithinType.decode(payload['sub'], separator: ':')
+          _type, sub = GraphQL::Schema::UniqueWithinType.decode(payload['sub'], separator: ':')
+        rescue Exception => e
+          fail Exceptions::UnauthorizedError, e.message
+        end
+
         begin
           find(sub)
-        rescue ActiveRecord::RecordNotFound
+        rescue ActiveRecord::RecordNotFound => e
           Jti.destroy(payload['jti'])
-          raise JWT::InvalidSubError
+          raise Exceptions::UnauthorizedError, e.message
         end
       end
     end
