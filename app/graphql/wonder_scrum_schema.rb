@@ -9,8 +9,6 @@ class WonderScrumSchema < GraphQL::Schema
   use GraphQL::Execution::Errors
   use GraphQL::Analysis::AST
   use GraphQL::Pagination::Connections
-  use GraphQL::Batch
-  use BatchLoader::GraphQL
 
   include ExceptionHandler
 
