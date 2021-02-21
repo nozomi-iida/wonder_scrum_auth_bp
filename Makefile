@@ -21,15 +21,20 @@ check-files: .env
 
 # コンテナ操作コマンド
 .PHONY: bundle up build_up down logs clean
-build: check-files
+build:
+	@sh ./set_dot_env.sh
 	$(DC) build
-up: check-files
+up:
+	@sh ./set_dot_env.sh
 	$(DC) up -d
-build_up: check-files
+build_up:
+	@sh ./set_dot_env.sh
 	$(DC) up -d --build
-restart: check-files
+restart:
+	@sh ./set_dot_env.sh
 	$(DC) restart
-force_restart: check-files
+force_restart:
+	@sh ./set_dot_env.sh
 	@make down
 	@make build_up
 down:
@@ -56,7 +61,7 @@ rails_c: check-files rails_env_check
 rails_routes: check-files
 	@$(RAILS_C) routes
 rspec: check-files
-	@$(DC) exec -e DB_NAME=wornder-scrum_test -e RAILS_ENV=test app bundle exec rspec
+	@$(DC) exec -e DB_NAME=coadmap_test -e RAILS_ENV=test app bundle exec rspec
 rubocop: check-files
 	@$(DC_APP) bundle exec rubocop
 rubocop_a: check-files
@@ -79,15 +84,6 @@ rails_g_model: buf_model_name
 
 rails_g_migration: buf_migrate_label
 	@$(RAILS_C) g migration $(MIGRATE_LABEL)
-
-rails_g_object: buf_migrate_label
-	@$(RAILS_C) g graphql:object $(MIGRATE_LABEL)
-
-rails_g_mutation: buf_migrate_label
-	@$(RAILS_C) g graphql:mutation $(MIGRATE_LABEL)
-
-rails_g_enum: buf_migrate_label
-	@$(RAILS_C) g graphql:enum $(MIGRATE_LABEL)
 
 # swagger
 rswag:
@@ -113,31 +109,3 @@ db_rollback: check-files rails_env_check
 	@$(RAILS_C) db:rollback RAILS_ENV=$(MAKE_RAILS_ENV)
 db_reset: check-files
 	@$(RAILS_C) db:reset
-
-
-# Docker関連コマンド
-.PHONY: docker_push
-project_env_check:
-	@$(eval PROJECT_ENV := $(shell read -p "ENV? (prd or stg): " ENV; echo $$ENV))
-	@echo "run command in $(PROJECT_ENV)"
-docker_build: project_env_check
-	@docker build . -t gcr.io/wornder-scrum/wornder-scrum-${PROJECT_ENV}
-docker_push: project_env_check
-	@docker push gcr.io/wornder-scrum/wornder-scrum-${PROJECT_ENV}
-
-# Terraform関連コマンド
-.PHONY: terraform_init terraform_plan terraform_apply terraform_destroy terraform_fmt
-terraform_env_check:
-	@$(eval TERRAFORM_ENV := $(shell read -p "ENV? (prd or stg): " ENV; echo $$ENV))
-	@echo "run command in $(TERRAFORM_ENV)"
-terraform_init: terraform_env_check
-	@${TF_CD} && terraform init
-terraform_plan: terraform_env_check
-	@${TF_CD} && terraform plan
-terraform_apply: terraform_env_check
-	@${TF_CD} && terraform apply
-terraform_destroy: terraform_env_check
-	@${TF_CD} && terraform destroy
-terraform_fmt:
-	@cd ./terraform && terraform fmt -recursive
-
