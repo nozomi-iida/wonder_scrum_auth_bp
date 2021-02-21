@@ -20,6 +20,7 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'rspec', '~> 3.9'
   gem 'rspec-graphql_matchers', '~> 1.3'
+  gem 'rspec-mocks', '~> 3.9'
   gem 'rspec-rails', '~> 4.0'
   gem 'rubocop', '~> 0.93.0'
   gem 'rubocop-rails', '~> 2.8'
@@ -27,6 +28,7 @@ group :development, :test do
   gem 'ruby-debug-ide'
   gem 'database_cleaner', '~> 1.8'
   gem 'test-prof'
+  gem 'shoulda-matchers', '~> 4.4'
 end
 
 group :development do

@@ -14,6 +14,7 @@ module Mutations
     private
 
     def authenticate_account!
+      Rails.logger.info "authenticate_account! -----------------"
       fail Exceptions::UnauthorizedError unless current_account.present?
     end
   end

@@ -56,7 +56,7 @@ rails_env_check:
 
 # rails関係コマンド
 .PHONY: rails_c rails_routes rspec rubocop rubocop_a erd
-rails_c: check-files rails_env_check
+rails_c: check-files
 	@$(RAILS_C) console
 rails_routes: check-files
 	@$(RAILS_C) routes

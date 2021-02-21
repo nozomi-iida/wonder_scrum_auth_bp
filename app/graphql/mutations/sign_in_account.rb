@@ -6,17 +6,14 @@ module Mutations
     argument :email, String, required: true
     argument :password, String, required: true
 
-    def resolve(args)
-      account = Account.find_by(
-        email: args[:email]
-      ).try(:authenticate, args[:password])
+    def resolve(email:, password:)
+      account = Account.find_by!(email: email)
+      fail Exceptions::UnauthorizedError unless account.authenticate(password)
 
-      if account
-        {
-          account: account,
-          token:  account.jwt
-        }
-      end
+      {
+        account: account,
+        token:  account.jwt
+      }
     end
   end
 end

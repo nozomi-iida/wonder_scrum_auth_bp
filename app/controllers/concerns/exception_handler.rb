@@ -21,8 +21,8 @@ module ExceptionHandler
       render json: { errors: [{ description: e.message, status: 422 }] }, status: :unprocessable_entity
     end
 
-    def json_response(obj, status = :ok)
-      render json: obj, status: status
+    rescue_from Exceptions::UnauthorizedError do |e|
+      render json: { errors: [{ description: e.message, status: 401 }] }, status: :un_authorized
     end
   end
 end
